@@ -53,8 +53,9 @@ jobs:
         uses: htec-infra/gha-utils/actions/comment-pr@v0.1.0
         with:
           github_token: "${{ inputs.github_token }}"
-    test:
-      name: 'Test'
-      runs-on: ubuntu-latest
-      steps:
-        - run: echo "Test"
+  test:
+    name: 'Test'
+    runs-on: ubuntu-latest
+    steps:
+      - name: my-step
+        run: echo "Hello World!"
