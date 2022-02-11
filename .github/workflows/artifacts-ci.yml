@@ -26,12 +26,14 @@ on:
     outputs:
       app_version:
         description: "Application Version"
-        value: ${{ steps.repo_data.outputs.app_version }}
+        value: ${{ jobs.build_push.outputs.app_version }}
 
 jobs:
   build_push:
     name: 'Build, publish and verify'
     runs-on: ubuntu-latest
+    outputs:
+      app_version: ${{ steps.repo_data.outputs.app_version }}
     steps:
       - uses: actions/checkout@v2
         with:
