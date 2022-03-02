@@ -64,6 +64,7 @@ jobs:
           push_image: "${{ inputs.push_image }}"
       - name: Comment PR
         id: comment_pr
+        if: github.event_name == 'pull_request'
         uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
         with:
           github_token: "${{ inputs.gh_token }}"
