@@ -66,7 +66,7 @@ jobs:
         id: comment_pr
         uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
         with:
-          gh_token: "${{ inputs.gh_token }}"
+          github_token: "${{ inputs.gh_token }}"
 
   setup_matrix:
     runs-on: ubuntu-latest
