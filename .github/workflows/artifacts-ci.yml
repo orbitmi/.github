@@ -80,13 +80,13 @@ jobs:
 
   auto_deploy:
     name: Auto Deploy (Dev Only)
-    needs: [build_and_publish, setup_matrix]
+    needs: [build_push, setup_matrix]
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
       matrix:
         service_name: ${{ fromJson(needs.setup_matrix.outputs.matrix) }}
-    if: contains(needs.build_and_publish.outputs.app_version, 'alpha')
+    if: contains(needs.build_push.outputs.app_version, 'alpha')
     steps:
       - name: Trigger
         uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
