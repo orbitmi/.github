@@ -97,11 +97,11 @@ jobs:
           client_payload: '{"env": "${{ inputs.deploy_environment }}", "version": "${{ needs.build_and_publish.outputs.app_version }}", "name": "${{ matrix.service_name }}"}'
           wait: true
 
-  sonarcloud:
-    name: Code Quality check
-    uses: htec-infra/gha-tbd/.github/workflows/sonarscan-dotnet.yml@v0.7.0
-    with:
-      build_dir: ${{ inputs.app_build_dir }}
-    secrets:
-      sonar_token: ${{ secrets.sonar_token }}
-      gh_token: ${{ secrets.gh_token }}
+  # sonarcloud:
+  #   name: Code Quality check
+  #   uses: htec-infra/gha-tbd/.github/workflows/sonarscan-dotnet.yml@v0.7.0
+  #   with:
+  #     build_dir: ${{ inputs.app_build_dir }}
+  #   secrets:
+  #     sonar_token: ${{ secrets.sonar_token }}
+  #     gh_token: ${{ secrets.gh_token }}
