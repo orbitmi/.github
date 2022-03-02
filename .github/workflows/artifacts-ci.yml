@@ -97,7 +97,7 @@ jobs:
           repository: ${{ inputs.infra_repo }}
           event_type: ${{ inputs.event_type }}
           client_payload: '{"env": "${{ inputs.deploy_environment }}", "version": "${{ needs.build_and_publish.outputs.app_version }}", "name": "${{ matrix.service_name }}"}'
-          wait: false
+          wait: true
 
   # sonarcloud:
   #   name: Code Quality check
