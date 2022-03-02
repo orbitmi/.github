@@ -68,7 +68,8 @@ jobs:
         uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
         with:
           github_token: "${{ inputs.gh_token }}"
-
+    outputs:
+      app_version: ${{ steps.repo_data.outputs.app_version }}
   setup_matrix:
     runs-on: ubuntu-latest
     steps:
