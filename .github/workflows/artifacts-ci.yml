@@ -10,7 +10,7 @@ on:
         default: 'true'
       platform:
         description: "Change the platform on which runner will be working on "
-        required: true
+        required: false
         type: string
         default: ubuntu-latest
       service_name:
@@ -40,7 +40,7 @@ on:
     secrets:
       gh_token:
         description: 'Github access token'
-        required: true      
+        required: true
       sonar_token:
         description: 'Sonarcloud access token'
         required: true
@@ -99,11 +99,11 @@ jobs:
           client_payload: '{"env": "${{ inputs.deploy_environment }}", "version": "${{ needs.build_and_publish.outputs.app_version }}", "name": "${{ matrix.service_name }}"}'
           wait: true
 
-  # sonarcloud:
-  #   name: Code Quality check
-  #   uses: htec-infra/gha-tbd/.github/workflows/sonarscan-dotnet.yml@v0.7.0
-  #   with:
-  #     build_dir: ${{ inputs.app_build_dir }}
-  #   secrets:
-  #     sonar_token: ${{ secrets.sonar_token }}
-  #     gh_token: ${{ secrets.gh_token }}
+  sonarcloud:
+    name: Code Quality check
+    uses: htec-infra/gha-tbd/.github/workflows/sonarscan-dotnet.yml@v0.7.0
+    with:
+      build_dir: ${{ inputs.app_build_dir }}
+    secrets:
+      sonar_token: ${{ secrets.sonar_token }}
+      gh_token: ${{ secrets.gh_token }}
