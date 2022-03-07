@@ -1,0 +1,38 @@
+name: Prepare App Release
+
+on:
+  workflow_call:
+    inputs:
+      app_revision:
+        description: Release Type
+        required: false
+        type: string
+    secrets:
+      gh_token:
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: read
+
+
+# Global ENVs
+env:
+  APP_REVISION: ${{ github.event.client_payload.name || github.event.pull_request.head.sha }}
+
+jobs:
+  publish:
+    # this job will only run if the PR has been merged and source branch is release branch
+    if: github.event.pull_request.merged == true  && contains(github.head_ref, 'release/')
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ inputs.app_revision || env.APP_REVISION }}
+          token:  ${{ secrets.gh_token }}
+      - name: Get repo data
+        id: repo_data
+        uses: htec-infra/gha-utils/actions/repo-data@v0.3.1
+      - name: Create GitHub Release
+        uses: htec-infra/gha-utils/actions/gh-release@v0.3.1
