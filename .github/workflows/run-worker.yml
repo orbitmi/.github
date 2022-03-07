@@ -1,0 +1,52 @@
+name: Deploy App
+
+on:
+  workflow_call:
+    inputs:
+      event_type:
+        description: "Remote workflow event type"
+        type: string
+        required: false
+        default: 'run_worker_v2'
+      infra_repo:
+        description: "Remote infrastructure repo"
+        required: false
+        type: string
+        default: 'orbitmi/infra-live-apps'
+      deploy_environment:
+        description: "Environment where app will be deployed"
+        required: false
+        type: string
+        default: "dev"
+      service_name:
+        description: "Service name (api, worker)"
+        required: false
+        type: string
+      is_finished:
+        description: "Wait for called event to finish"
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      gh_token:
+        required: true
+
+permissions:
+  id-token: none
+
+jobs:
+  deploy:
+    name: Run Repository Dispatcher
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repo data
+        id: repo_data
+        uses: htec-infra/gha-utils/actions/repo-data@v0.3.1
+      - name: Run worker
+        uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
+        with:
+          gh_token: ${{ secrets.gh_token }}
+          repository: ${{ inputs.infra_repo }}
+          event_type: ${{ inputs.event_type }}
+          client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.service_name || steps.repo_data.outputs.repo_name }}"}'
+          wait: ${{ inputs.is_finished }}
