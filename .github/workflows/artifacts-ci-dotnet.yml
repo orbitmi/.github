@@ -47,6 +47,9 @@ permissions:
   pull-requests: write
   contents: read
 
+env:
+  APP_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+
 jobs:
   build_push:
     name: 'Build, publish and verify'
@@ -57,6 +60,7 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
           token:  ${{ secrets.gh_token }}
+          ref: ${{ env.APP_REVISION }}
       - name: Get repo data
         id: repo_data
         uses: htec-infra/gha-utils/actions/repo-data@v0.3.1
