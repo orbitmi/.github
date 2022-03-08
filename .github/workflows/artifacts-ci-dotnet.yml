@@ -100,5 +100,5 @@ jobs:
           gh_token: ${{ secrets.gh_token }}
           repository: ${{ inputs.infra_repo }}
           event_type: ${{ inputs.event_type }}
-          client_payload: '{"env": "${{ inputs.deploy_environment }}", "version": "${{ needs.build_publish.outputs.app_version }}", "name": "${{ matrix.service_name }}"}'
+          client_payload: '{"env": "${{ inputs.deploy_environment }}", "version": "${{ needs.build_push.outputs.app_version }}", "name": "${{ matrix.service_name }}"}'
           wait: true
