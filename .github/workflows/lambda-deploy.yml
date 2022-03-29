@@ -26,6 +26,12 @@ on:
         description: "Solution file location"
         type: string
         required: true
+      dotnet_version:
+        description: ".NET version"
+        type: string
+        default: '3.1.x'
+        required: false
+
     secrets:
       gh_token:
         required: true
@@ -48,4 +54,4 @@ jobs:
           gh_token: ${{ secrets.gh_token }}
           repository: ${{ inputs.infra_repo }}
           event_type: ${{ inputs.event_type }}
-          client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.function_name || steps.repo_data.outputs.repo_name }}", "solution_file": "${{ inputs.solution_file }}"}'
+          client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.function_name || steps.repo_data.outputs.repo_name }}", "dotnet_version": "${{ inputs.dotnet_version }}" , "solution_file": "${{ inputs.solution_file }}"}'
