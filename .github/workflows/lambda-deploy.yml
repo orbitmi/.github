@@ -1,4 +1,4 @@
-name: Deploy App
+name: Deploy Lambda
 
 on:
   workflow_call:
@@ -36,6 +36,11 @@ on:
         type: string
         required: false
         default: "compiled_code.zip"
+      is_finished:
+        description: "Wait for called event to finish"
+        required: false
+        type: boolean
+        default: true
 
     secrets:
       gh_token:
@@ -60,3 +65,4 @@ jobs:
           repository: ${{ inputs.infra_repo }}
           event_type: ${{ inputs.event_type }}
           client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.function_name || steps.repo_data.outputs.repo_name }}", "dotnet_version": "${{ inputs.dotnet_version }}" , "zip_file": "${{ inputs.zip_file }}" , "solution_file": "${{ inputs.solution_file }}"}'
+          wait: ${{ inputs.is_finished }}
