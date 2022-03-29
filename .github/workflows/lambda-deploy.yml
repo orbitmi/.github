@@ -48,4 +48,4 @@ jobs:
           gh_token: ${{ secrets.gh_token }}
           repository: ${{ inputs.infra_repo }}
           event_type: ${{ inputs.event_type }}
-          client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.function_name || steps.repo_data.outputs.repo_name }}", "solution_file": "${{ inputs.solution_file }}"'
+          client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.function_name || steps.repo_data.outputs.repo_name }}", "solution_file": "${{ inputs.solution_file }}"}'
