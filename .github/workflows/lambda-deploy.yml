@@ -1,0 +1,51 @@
+name: Deploy App
+
+on:
+  workflow_call:
+    inputs:
+      event_type:
+        description: "Remote workflow event type"
+        type: string
+        required: false
+        default: 'update_lambda'
+      infra_repo:
+        description: "Remote infrastructure repo"
+        required: false
+        type: string
+        default: 'orbitmi/infra-live-apps'
+      deploy_environment:
+        description: "Environment where app will be deployed"
+        required: false
+        type: string
+        default: "dev"
+      function_name:
+        description: "Service name (api, worker)"
+        required: true
+        type: string
+      solution_file:
+        description: "Solution file location"
+        type: string
+        required: true
+    secrets:
+      gh_token:
+        required: true
+
+permissions:
+  id-token: none
+
+
+jobs:
+  deploy:
+    name: Run Repository Dispatcher
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repo data
+        id: repo_data
+        uses: htec-infra/gha-utils/actions/repo-data@v0.3.1
+      - name: Trigger deploy
+        uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
+        with:
+          gh_token: ${{ secrets.gh_token }}
+          repository: ${{ inputs.infra_repo }}
+          event_type: ${{ inputs.event_type }}
+          client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.function_name || steps.repo_data.outputs.repo_name }}"}, "solution_file": "${{ inputs.solution_file }}"'
