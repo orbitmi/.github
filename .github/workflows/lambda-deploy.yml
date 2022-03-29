@@ -36,6 +36,11 @@ on:
         type: string
         required: false
         default: "compiled_code.zip"
+      dry_run:
+        description: "Dry run"
+        type: string
+        default: 'false'
+        required: false
       is_finished:
         description: "Wait for called event to finish"
         required: false
@@ -64,5 +69,5 @@ jobs:
           gh_token: ${{ secrets.gh_token }}
           repository: ${{ inputs.infra_repo }}
           event_type: ${{ inputs.event_type }}
-          client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.function_name || steps.repo_data.outputs.repo_name }}", "dotnet_version": "${{ inputs.dotnet_version }}" , "zip_file": "${{ inputs.zip_file }}" , "solution_file": "${{ inputs.solution_file }}"}'
+          client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.function_name || steps.repo_data.outputs.repo_name }}", "dotnet_version": "${{ inputs.dotnet_version }}" , "zip_file": "${{ inputs.zip_file }}" , "dry_run": "${{ inputs.dry_run }}" , "solution_file": "${{ inputs.solution_file }}"}'
           wait: ${{ inputs.is_finished }}
