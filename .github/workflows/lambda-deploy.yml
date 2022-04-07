@@ -3,71 +3,65 @@ name: Deploy Lambda
 on:
   workflow_call:
     inputs:
-      event_type:
-        description: "Remote workflow event type"
-        type: string
-        required: false
-        default: 'update_lambda'
-      infra_repo:
-        description: "Remote infrastructure repo"
-        required: false
-        type: string
-        default: 'orbitmi/infra-live-apps'
       deploy_environment:
         description: "Environment where app will be deployed"
         required: false
         type: string
         default: "dev"
-      function_name:
-        description: "Service name (api, worker)"
+      app_name:
+        description: "Lambda name"
         required: true
         type: string
-      solution_file:
-        description: "Solution file location"
-        type: string
+      app_version:
+        description: "Version"
         required: true
-      dotnet_version:
-        description: ".NET version"
         type: string
-        default: '3.1.x'
+      infra_repo:
+        description: "Remote infrastructure repo"
         required: false
-      zip_file:
-        description: "Compressed compiled code"
         type: string
+        default: 'orbitmi/infra-live-apps'
+      event_type:
+        description: "Remote workflow event type"
         required: false
-        default: "compiled_code.zip"
+        type: string
+        default: "update_lambda"
       dry_run:
         description: "Dry run"
         type: string
         default: 'false'
+        required: false
+      s3_bucket:
+        description: "Bucket name where lambda code is uploaded"
+        type: string
+        default: 'orbit-artifacts'
         required: false
       is_finished:
         description: "Wait for called event to finish"
         required: false
         type: boolean
         default: true
-
     secrets:
       gh_token:
         required: true
 
 permissions:
   id-token: none
+  issues: write
+  pull-requests: write
+  contents: read
 
 
 jobs:
-  deploy:
+  auto_deploy:
     name: Run Repository Dispatcher
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest]
     steps:
-      - name: Get repo data
-        id: repo_data
-        uses: htec-infra/gha-utils/actions/repo-data@v0.3.1
       - name: Trigger deploy
         uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
         with:
           gh_token: ${{ secrets.gh_token }}
           repository: ${{ inputs.infra_repo }}
           event_type: ${{ inputs.event_type }}
-          client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.function_name || steps.repo_data.outputs.repo_name }}", "dotnet_version": "${{ inputs.dotnet_version }}" , "zip_file": "${{ inputs.zip_file }}" , "dry_run": "${{ inputs.dry_run }}" , "solution_file": "${{ inputs.solution_file }}"}'
+          client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.app_name || steps.repo_data.outputs.repo_name }}", "s3_zip_file": "${{  inputs.app_version }}.zip", "s3_bucket": "${{ inputs.s3_bucket }}", "dry_run": "${{ inputs.dry_run }}"}'
           wait: ${{ inputs.is_finished }}

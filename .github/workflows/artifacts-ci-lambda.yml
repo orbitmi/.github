@@ -1,0 +1,116 @@
+name: 'Artifact CI Lambda'
+
+on:
+  workflow_call:
+    inputs:
+      deploy_environment:
+        description: "Environment where app will be deployed"
+        required: false
+        type: string
+        default: "dev"
+      app_name:
+        description: "Lambda name"
+        required: true
+        type: string
+      solution_file:
+        description: "Solution file location"
+        type: string
+        required: true
+      infra_repo:
+        description: "Remote infrastructure repo"
+        required: false
+        type: string
+        default: 'orbitmi/infra-live-apps'
+      event_type:
+        description: "Remote workflow event type"
+        required: false
+        type: string
+        default: "update_lambda"
+      dotnet_version:
+        description: ".NET version"
+        type: string
+        default: '3.1.x'
+        required: false
+      dry_run:
+        description: "Dry run"
+        type: string
+        default: 'false'
+        required: false
+      s3_bucket:
+        description: "Bucket name where lambda code is uploaded"
+        type: string
+        default: 'orbit-artifacts'
+      s3_bucket_key:
+        description: "Bucket name where lambda code is uploaded"
+        type: string
+        default: 'lambda'
+        required: false
+      platform:
+        description: "Change the platform on which runner will be working on "
+        required: false
+        type: string
+        default: ubuntu-latest
+      is_finished:
+        description: "Wait for called event to finish"
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      gh_token:
+        required: true
+
+permissions:
+  id-token: none
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  build_push:
+    name: Run Repository Dispatcher
+    runs-on: ${{ inputs.platform }}
+    if: (github.event_name == 'push') || (github.event_name == 'pull_request' && contains(github.head_ref, 'release/')) || (github.event_name == 'workflow_dispatch')
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          token:  ${{ secrets.gh_token }}
+      - name: Get repo data
+        id: repo_data
+        uses: htec-infra/gha-utils/actions/repo-data@v0.3.1
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ inputs.dotnet_version }}
+      - name: Compile code
+        run: |
+          dotnet publish ${{ inputs.solution_file }} -c Release -o ./dist
+      - name: Create zip archive
+        run: |
+          zip -qq -r -j ${{ steps.repo_data.outputs.app_version }}.zip ./dist/*
+      - name: upload lambda function
+        run: |
+            aws s3 cp ${{ steps.repo_data.outputs.app_version }}.zip s3://${{ inputs.s3_bucket }}/${{ inputs.s3_bucket_key }}/${{ inputs.app_name }}/
+      - name: Comment PR
+        id: comment_pr
+        if: github.event_name == 'pull_request'
+        uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
+        with:
+          github_token: "${{ secrets.GITHUB_TOKEN }}"
+    outputs:
+      app_version: ${{ steps.repo_data.outputs.app_version }}
+
+  auto_deploy:
+    name: Auto Deploy (Dev Only)
+    needs: [build_push]
+    runs-on: [ubuntu-latest]
+    if: contains(needs.build_push.outputs.app_version, 'alpha')
+    steps:
+      - name: Trigger deploy
+        uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
+        with:
+          gh_token: ${{ secrets.gh_token }}
+          repository: ${{ inputs.infra_repo }}
+          event_type: ${{ inputs.event_type }}
+          client_payload: '{"env": "${{ inputs.deploy_environment }}", "name": "${{ inputs.app_name || steps.repo_data.outputs.repo_name }}", "s3_zip_file": "${{ needs.build_push.outputs.app_version }}.zip", "s3_bucket": "${{ inputs.s3_bucket }}", "dry_run": "${{ inputs.dry_run }}"}'
+          wait: ${{ inputs.is_finished }}
