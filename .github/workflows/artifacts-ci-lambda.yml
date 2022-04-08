@@ -95,8 +95,8 @@ jobs:
         id: comment_pr
         if: github.event_name == 'pull_request'
         uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
-        with:
-          github_token: "${{ secrets.GITHUB_TOKEN }}"
+        # with:
+        #   github_token: "${{ secrets.GITHUB_TOKEN }}"
     outputs:
       app_version: ${{ steps.repo_data.outputs.app_version }}
 
