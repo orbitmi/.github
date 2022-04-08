@@ -87,7 +87,7 @@ jobs:
           dotnet publish ${{ inputs.solution_file }} -c Release -o ./dist
       - name: Create zip archive
         run: |
-          zip -qq -r -j ${{ steps.repo_data.outputs.app_version }}.zip ./dist/*
+          cd dist ; zip -qq -r ../${{ steps.repo_data.outputs.app_version }}.zip * ; cd ..
       - name: upload lambda function
         run: |
             aws s3 cp ${{ steps.repo_data.outputs.app_version }}.zip s3://${{ inputs.s3_bucket }}/${{ inputs.s3_bucket_key }}/${{ inputs.app_name }}/
