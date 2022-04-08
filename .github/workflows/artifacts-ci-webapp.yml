@@ -74,9 +74,11 @@ jobs:
         run: |
           echo ::set-output name=service_name::${{ inputs.service_name || steps.repo_data.outputs.repo_name }}
       - name: Comment PR
-        id: comment_pr
         if: github.event_name == 'pull_request'
         uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
+        continue-on-error: true
+        with:
+          github_token: "${{ secrets.GITHUB_TOKEN }}"
     outputs:
       app_version: ${{ steps.repo_data.outputs.app_version }}
       service_name: ${{ steps.get_service_name.outputs.service_name }}
