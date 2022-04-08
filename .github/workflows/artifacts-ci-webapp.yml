@@ -1,0 +1,97 @@
+name: 'Artifact CI'
+
+on:
+  workflow_call:
+    inputs:
+      push_image:
+        description: 'Whether to push image to container registry or not?'
+        required: false
+        type: string
+        default: 'true'
+      platform:
+        description: "Change the platform on which runner will be working on "
+        required: false
+        type: string
+        default: ubuntu-latest
+      service_name:
+        description: "Name or array of service name to be deployed"
+        required: false
+        type: string
+      deploy_environment:
+        description: "Environment where app will be deployed"
+        required: false
+        type: string
+        default: "dev"
+      infra_repo:
+        description: "Remote infrastructure repo"
+        required: false
+        type: string
+        default: 'orbitmi/infra-live-apps'
+      event_type:
+        description: "Remote workflow event type"
+        required: false
+        type: string
+        default: "app_deploy_v2"
+      app_build_dir:
+        description: "Directory where solution file is stored"
+        required: false
+        type: string
+        default: "src/"
+    secrets:
+      gh_token:
+        description: 'Github access token'
+        required: true
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+env:
+  APP_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  build_push:
+    name: 'Build, publish and verify'
+    runs-on: ${{ inputs.platform }}
+    if: (github.event_name == 'push') || (github.event_name == 'pull_request' && contains(github.head_ref, 'release/')) || (github.event_name == 'workflow_dispatch')
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          token:  ${{ secrets.gh_token }}
+          ref: ${{ env.APP_REVISION }}
+      - name: Get repo data
+        id: repo_data
+        uses: htec-infra/gha-utils/actions/repo-data@v0.3.1
+      - name: Build and push container image
+        id: container_ops
+        uses: htec-infra/gha-utils/actions/container-ops@v0.3.1
+        with:
+          push_image: "${{ inputs.push_image }}"
+      - name: Get service name
+        id: get_service_name
+        run: |
+          echo ::set-output name=service_name::$(echo -n ${{ inputs.service_name || steps.repo_data.outputs.repo_name }} | jq -cRs 'split(", ")')
+      - name: Comment PR
+        id: comment_pr
+        if: github.event_name == 'pull_request'
+        uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
+    outputs:
+      app_version: ${{ steps.repo_data.outputs.app_version }}
+      service_name: ${{ steps.get_service_name.outputs.service_name }}
+
+  auto_deploy:
+    name: Auto Deploy (Dev Only)
+    needs: [build_push]
+    runs-on: ubuntu-latest
+    if: contains(needs.build_push.outputs.app_version, 'alpha')
+    steps:
+      - name: Trigger
+        uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
+        with:
+          gh_token: ${{ secrets.gh_token }}
+          repository: ${{ inputs.infra_repo }}
+          event_type: ${{ inputs.event_type }}
+          client_payload: '{"env": "${{ inputs.deploy_environment }}", "version": "${{ needs.build_push.outputs.app_version }}", "name": "${{ needs.build_push.outputs.service_name }}"}'
+          wait: true
