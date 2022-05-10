@@ -19,8 +19,8 @@ on:
         type: string
         default: "dev"
       service_name:
-        description: "Service name (api, worker)"
-        required: false
+        description: "Name or array of service name to be deployed"
+        required: true
         type: string
       app_version:
         description: "Version"
@@ -40,9 +40,26 @@ permissions:
 
 
 jobs:
+  prepare_data:
+    name: 'Prepare data for deployment'
+    runs-on: self-hosted
+    steps:
+      - name: Get service name
+        id: get_service_name
+        run: |
+          echo ::set-output name=service_name::$(echo -n ${{ inputs.service_name }} | jq -cRs 'split(", ")')
+    outputs:
+      service_name: ${{ steps.get_service_name.outputs.service_name }}
+
+
   deploy:
     name: Run Repository Dispatcher
     runs-on: ubuntu-latest
+    needs: [prepare_data]
+    strategy:
+      max-parallel: 1
+      matrix:
+        service_name: ${{ fromJson(needs.prepare_data.outputs.service_name) }}
     steps:
       - name: Get repo data
         id: repo_data
@@ -53,5 +70,5 @@ jobs:
           gh_token: ${{ secrets.gh_token }}
           repository: ${{ inputs.infra_repo }}
           event_type: ${{ inputs.event_type }}
-          client_payload: '{"env": "${{ inputs.deploy_environment }}", "version": "${{ inputs.app_version }}", "name": "${{ inputs.service_name || steps.repo_data.outputs.repo_name }}"}'
+          client_payload: '{"env": "${{ inputs.deploy_environment }}", "version": "${{ inputs.app_version }}", "name": "${{ matrix.service_name }}"}'
           wait: ${{ inputs.is_finished }}
