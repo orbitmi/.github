@@ -59,7 +59,7 @@ jobs:
   build_push:
     name: 'Build, publish and verify'
     runs-on: ${{ inputs.platform }}
-    if: (github.event_name == 'push') || (github.event_name == 'pull_request' && contains(github.head_ref, 'release/')) || (github.event_name == 'pull_request' && contains(github.head_ref, 'poc/')) || (github.event_name == 'workflow_dispatch')
+    # if: (github.event_name == 'push') || (github.event_name == 'pull_request' && contains(github.head_ref, 'release/')) || (github.event_name == 'pull_request' && contains(github.head_ref, 'poc/')) || (github.event_name == 'workflow_dispatch')
     steps:
       - uses: actions/checkout@v2
         with:
