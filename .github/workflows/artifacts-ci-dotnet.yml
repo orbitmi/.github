@@ -37,6 +37,11 @@ on:
         required: false
         type: string
         default: "src/"
+      app_version:
+        description: "Specify app version"
+        required: false
+        type: string
+        default: "alpha"
     secrets:
       gh_token:
         description: 'Github access token'
@@ -54,7 +59,7 @@ jobs:
   build_push:
     name: 'Build, publish and verify'
     runs-on: ${{ inputs.platform }}
-    if: (github.event_name == 'push') || (github.event_name == 'pull_request' && contains(github.head_ref, 'release/')) || (github.event_name == 'workflow_dispatch')
+    if: (github.event_name == 'push') || (github.event_name == 'pull_request' && contains(github.head_ref, 'release/')) || || (github.event_name == 'pull_request' && contains(github.head_ref, 'poc/')) || (github.event_name == 'workflow_dispatch')
     steps:
       - uses: actions/checkout@v2
         with:
@@ -80,7 +85,6 @@ jobs:
         with:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
     outputs:
-      app_version: ${{ steps.repo_data.outputs.app_version }}
       service_name: ${{ steps.get_service_name.outputs.service_name }}
 
 
@@ -92,7 +96,7 @@ jobs:
       max-parallel: 1
       matrix:
         service_name: ${{ fromJson(needs.build_push.outputs.service_name) }}
-    if: contains(needs.build_push.outputs.app_version, 'alpha')
+    if: contains(inputs.app_version, 'poc')
     steps:
       - name: Trigger
         uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
