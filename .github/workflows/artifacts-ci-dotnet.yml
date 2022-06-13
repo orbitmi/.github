@@ -96,7 +96,7 @@ jobs:
       max-parallel: 1
       matrix:
         service_name: ${{ fromJson(needs.build_push.outputs.service_name) }}
-    if: contains(inputs.app_version, 'poc')
+    if: contains(inputs.app_version, 'poc') || contains(inputs.app_version, 'alpha')
     steps:
       - name: Trigger
         uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
