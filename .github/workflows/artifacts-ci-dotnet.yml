@@ -98,7 +98,7 @@ jobs:
       matrix:
         service_name: ${{ fromJson(needs.build_push.outputs.service_name) }}
     #if: contains(inputs.auto_deploy_criteria, 'poc') || contains(inputs.auto_deploy_criteria, 'alpha')
-    if: startsWith(needs.build_push.outputs.app_version, inpusts.inputs.auto_deploy_criteria)
+    if: startsWith(needs.build_push.outputs.app_version, inputs.auto_deploy_criteria)
     steps:
       - name: Trigger
         uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
