@@ -80,7 +80,7 @@ jobs:
           restore-keys: |
             ${{ steps.repo_data.outputs.app_version }}-${{ hashFiles('./package-lock.json') }}
       - name: Install node modules
-        if: ${{ steps.cache_node_modules.outputs.cache-hit == 'false' }}
+        # if: ${{ steps.cache_node_modules.outputs.cache-hit == 'false' }}
         run: npm install
       - name: Build and push container image
         id: container_ops
