@@ -17,6 +17,10 @@ on:
         type: string
         default: '14'
         required: false
+      node_modules_path:
+        type: string
+        default: "./node_modules"
+        required: false
       service_name:
         description: "Name or array of service name to be deployed"
         required: false
@@ -75,12 +79,12 @@ jobs:
         id: cache_node_modules
         uses: actions/cache@v3
         with:
-          path: ./node_modules
+          path: ${{ inputs.node_modules_path }}
           key: ${{ hashFiles('./package-lock.json') }}
           restore-keys: |
             ${{ hashFiles('./package-lock.json') }}
       - name: Install node modules
-        # if: ${{ steps.cache_node_modules.outputs.cache-hit == 'false' }}
+        if: ${{ steps.cache_node_modules.outputs.cache-hit == 'false' }}
         run: npm install
       - name: Build and push container image
         id: container_ops
