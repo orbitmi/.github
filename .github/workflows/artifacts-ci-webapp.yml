@@ -70,7 +70,7 @@ jobs:
           node-version: ${{ inputs.node_version }}
       - name: Get repo data
         id: repo_data
-        uses: htec-infra/gha-utils/actions/repo-data@v0.3.1
+        uses: htec-infra/gha-utils/actions/repo-data@v0.3.3
       - name: Cache node modules
         id: cache_node_modules
         uses: actions/cache@v3
@@ -84,7 +84,7 @@ jobs:
         run: npm install
       - name: Build and push container image
         id: container_ops
-        uses: htec-infra/gha-utils/actions/container-ops@v0.3.1
+        uses: htec-infra/gha-utils/actions/container-ops@v0.3.3
         with:
           push_image: "${{ inputs.push_image }}"
       - name: Get service name
