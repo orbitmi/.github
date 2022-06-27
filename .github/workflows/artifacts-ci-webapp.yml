@@ -76,9 +76,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./node_modules
-          key: ${{ steps.repo_data.outputs.app_version }}-${{ hashFiles('./package-lock.json') }}
+          key: ${{ hashFiles('./package-lock.json') }}
           restore-keys: |
-            ${{ steps.repo_data.outputs.app_version }}-${{ hashFiles('./package-lock.json') }}
+            ${{ hashFiles('./package-lock.json') }}
       - name: Install node modules
         # if: ${{ steps.cache_node_modules.outputs.cache-hit == 'false' }}
         run: npm install
