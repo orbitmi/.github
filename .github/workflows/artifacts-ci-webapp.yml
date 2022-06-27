@@ -13,6 +13,10 @@ on:
         required: false
         type: string
         default: ubuntu-latest
+      node_version:
+        type: string
+        default: '14'
+        required: false
       service_name:
         description: "Name or array of service name to be deployed"
         required: false
@@ -61,9 +65,23 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
           token:  ${{ secrets.gh_token }}
           ref: ${{ env.APP_REVISION }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node_version }}
       - name: Get repo data
         id: repo_data
         uses: htec-infra/gha-utils/actions/repo-data@v0.3.1
+      - name: Cache node modules
+        id: cache_node_modules
+        uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: ${{ steps.repo_data.outputs.app_version }}-${{ hashFiles('./package-lock.json') }}
+          restore-keys: |
+            ${{ steps.repo_data.outputs.app_version }}-${{ hashFiles('./package-lock.json') }}
+      - name: Install node modules
+        if: ${{ steps.cache_node_modules.outputs.cache-hit == 'false' }}
+        run: npm install
       - name: Build and push container image
         id: container_ops
         uses: htec-infra/gha-utils/actions/container-ops@v0.3.1
