@@ -40,11 +40,6 @@ on:
         required: false
         type: string
         default: "app_deploy_v2"
-      app_build_dir:
-        description: "Directory where solution file is stored"
-        required: false
-        type: string
-        default: "src/"
       build_in_container:
         description: 'Is project built in container or not'
         required: false
