@@ -86,6 +86,8 @@ jobs:
       - name: Install node modules
         if: ${{ steps.cache_node_modules.outputs.cache-hit == 'false' }}
         run: npm install
+      - name: Build the project
+        run: npm run build
       - name: Build and push container image
         id: container_ops
         uses: htec-infra/gha-utils/actions/container-ops@v0.3.3
