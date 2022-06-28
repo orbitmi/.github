@@ -40,11 +40,11 @@ on:
         required: false
         type: string
         default: "app_deploy_v2"
-      build_command:
-        description: "Command used to build the project"
+      build_script:
+        description: "Location for build script"
         required: false
         type: string
-        default: "npm run build"
+        default: "./infra/build.sh"
     secrets:
       gh_token:
         description: 'Github access token'
@@ -89,9 +89,9 @@ jobs:
       - name: Scan for build script
         id: scan_for_build_script
         run: |
-          if [[ -f "./infra/build.sh" ]]; then
+          if [[ -f ${{ inputs.build_script }} ]]; then
               echo "Build script found."
-              echo "BUILD_COMMAND=bash ./infra/build.sh" >> $GITHUB_ENV
+              echo "BUILD_COMMAND=bash ${{ inputs.build_script }}" >> $GITHUB_ENV
           else
               echo "Build script not found falling back to default command."
               echo "BUILD_COMMAND=npm run build" >> $GITHUB_ENV
