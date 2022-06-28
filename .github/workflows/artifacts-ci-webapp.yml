@@ -50,6 +50,11 @@ on:
         required: false
         type: string
         default: 'false'
+      build_command:
+        description: "Command used to build the project"
+        required: false
+        type: string
+        default: "npm run build"
     secrets:
       gh_token:
         description: 'Github access token'
@@ -90,7 +95,7 @@ jobs:
             ${{ hashFiles('./package-lock.json') }}
       - name: Install node modules
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
-        run: npm install
+        run: ${{ inputs.build_command }}
       - name: Build the project
         if: contains(inputs.build_in_container, 'false')
         run: npm run build
