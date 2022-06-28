@@ -87,13 +87,12 @@ jobs:
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
         run: npm install
       - name: Scan for build script
-        id: scan_for_build_script
         run: |
           if [[ -f ${{ inputs.build_script }} ]]; then
-              echo "Build script found."
+              echo "Using ${{ inputs.build_script }} script for the build process"
               echo "BUILD_COMMAND=bash ${{ inputs.build_script }}" >> $GITHUB_ENV
           else
-              echo "Build script not found falling back to default command."
+              echo "Build script not found using npm run build for the build process"
               echo "BUILD_COMMAND=npm run build" >> $GITHUB_ENV
           fi
       - name: Build the project
