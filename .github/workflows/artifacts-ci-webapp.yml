@@ -40,11 +40,6 @@ on:
         required: false
         type: string
         default: "app_deploy_v2"
-      build_in_container:
-        description: 'Is project built in container or not'
-        required: false
-        type: string
-        default: 'false'
       build_command:
         description: "Command used to build the project"
         required: false
@@ -91,9 +86,18 @@ jobs:
       - name: Install node modules
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
         run: npm install
+      - name: Scan for build script
+        id: scan_for_build_script
+        run: |
+          if [[ -f "./infra/build.sh" ]]; then
+              echo "Build script found."
+              echo "BUILD_COMMAND=bash ./infra/build.sh" >> $GITHUB_ENV
+          else
+              echo "Build script not found falling back to default command."
+              echo "BUILD_COMMAND=npm run build" >> $GITHUB_ENV
+          fi
       - name: Build the project
-        if: contains(inputs.build_in_container, 'false')
-        run: ${{ inputs.build_command }}
+        run: ${{ env.BUILD_COMMAND }}
       - name: Build and push container image
         id: container_ops
         uses: htec-infra/gha-utils/actions/container-ops@v0.3.3
