@@ -15,7 +15,7 @@ on:
         default: ubuntu-latest
       node_version:
         type: string
-        default: '14'
+        default: '16.15.1'
         required: false
       node_modules_path:
         type: string
