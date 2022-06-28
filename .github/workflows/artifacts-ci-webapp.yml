@@ -95,10 +95,10 @@ jobs:
             ${{ hashFiles('./package-lock.json') }}
       - name: Install node modules
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
-        run: ${{ inputs.build_command }}
+        run: npm install
       - name: Build the project
         if: contains(inputs.build_in_container, 'false')
-        run: npm run build
+        run: ${{ inputs.build_command }}
       - name: Build and push container image
         id: container_ops
         uses: htec-infra/gha-utils/actions/container-ops@v0.3.3
