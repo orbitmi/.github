@@ -84,7 +84,7 @@ jobs:
           restore-keys: |
             ${{ hashFiles('./package-lock.json') }}
       - name: Install node modules
-        if: ${{ steps.cache_node_modules.outputs.cache-hit == 'false' }}
+        if: steps.cache_node_modules.outputs.cache-hit != 'true'
         run: npm install
       - name: Build the project
         run: npm run build
