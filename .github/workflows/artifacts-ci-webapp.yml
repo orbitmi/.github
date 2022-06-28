@@ -45,6 +45,11 @@ on:
         required: false
         type: string
         default: "src/"
+      build_in_container:
+        description: 'Is project built in container or not'
+        required: false
+        type: string
+        default: 'false'
     secrets:
       gh_token:
         description: 'Github access token'
@@ -87,6 +92,7 @@ jobs:
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
         run: npm install
       - name: Build the project
+        if: contains(inputs.build_in_container, 'false')
         run: npm run build
       - name: Build and push container image
         id: container_ops
