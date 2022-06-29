@@ -13,6 +13,14 @@ on:
         required: false
         type: string
         default: ubuntu-latest
+      node_version:
+        type: string
+        default: '16.15.1'
+        required: false
+      node_modules_path:
+        type: string
+        default: "./node_modules"
+        required: false
       service_name:
         description: "Name or array of service name to be deployed"
         required: false
@@ -32,11 +40,11 @@ on:
         required: false
         type: string
         default: "app_deploy_v2"
-      app_build_dir:
-        description: "Directory where solution file is stored"
+      build_script:
+        description: "Location for build script"
         required: false
         type: string
-        default: "src/"
+        default: "./infra/build.sh"
     secrets:
       gh_token:
         description: 'Github access token'
@@ -61,12 +69,35 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
           token:  ${{ secrets.gh_token }}
           ref: ${{ env.APP_REVISION }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node_version }}
       - name: Get repo data
         id: repo_data
-        uses: htec-infra/gha-utils/actions/repo-data@v0.3.1
+        uses: htec-infra/gha-utils/actions/repo-data@v0.3.3
+      - name: Cache node modules
+        id: cache_node_modules
+        uses: actions/cache@v3
+        with:
+          path: ${{ inputs.node_modules_path }}
+          key: ${{ hashFiles('./package-lock.json') }}
+          restore-keys: |
+            ${{ hashFiles('./package-lock.json') }}
+      - name: Install node modules
+        if: steps.cache_node_modules.outputs.cache-hit != 'true'
+        run: npm install
+      - name: Build the project
+        run: |
+          if [[ -f ${{ inputs.build_script }} ]]; then
+              echo "Using ${{ inputs.build_script }} script to start the build process"
+              /bin/bash "${{ inputs.build_script }}"
+          else
+              echo "Build script not found, using npm run build to start the build process"
+              /bin/bash -c "npm run build"
+          fi
       - name: Build and push container image
         id: container_ops
-        uses: htec-infra/gha-utils/actions/container-ops@v0.3.1
+        uses: htec-infra/gha-utils/actions/container-ops@v0.3.3
         with:
           push_image: "${{ inputs.push_image }}"
       - name: Get service name
