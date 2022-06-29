@@ -90,7 +90,7 @@ jobs:
         run: |
           if [[ -f ${{ inputs.build_script }} ]]; then
               echo "Using ${{ inputs.build_script }} script to start the build process"
-              $("${{ inputs.build_script }}")
+              /bin/bash "${{ inputs.build_script }}"
           else
               echo "Build script not found, using npm run build to start the build process"
               /bin/bash -c "npm run build"
