@@ -86,17 +86,15 @@ jobs:
       - name: Install node modules
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
         run: npm install
-      - name: Scan for build script
+      - name: Build the project
         run: |
           if [[ -f ${{ inputs.build_script }} ]]; then
-              echo "Using ${{ inputs.build_script }} script for the build process"
-              echo "BUILD_COMMAND=bash ${{ inputs.build_script }}" >> $GITHUB_ENV
+              echo "Using ${{ inputs.build_script }} script to start the build process"
+              $("${{ inputs.build_script }}")
           else
-              echo "Build script not found using npm run build for the build process"
-              echo "BUILD_COMMAND=npm run build" >> $GITHUB_ENV
+              echo "Build script not found, using npm run build to start the build process"
+              /bin/bash -c "npm run build"
           fi
-      - name: Build the project
-        run: ${{ env.BUILD_COMMAND }}
       - name: Build and push container image
         id: container_ops
         uses: htec-infra/gha-utils/actions/container-ops@v0.3.3
