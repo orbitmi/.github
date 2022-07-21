@@ -50,7 +50,7 @@ on:
         description: 'Github access token'
         required: true
       aws_role:
-        description: "Full role name with account id"
+        description: "Role ARN"
         required: true
 
 permissions:
