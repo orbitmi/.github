@@ -49,11 +49,15 @@ on:
       gh_token:
         description: 'Github access token'
         required: true
+      aws_role:
+        description: "Role ARN"
+        required: true
 
 permissions:
   issues: write
   pull-requests: write
   contents: read
+  id-token: write
 
 env:
   APP_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -72,6 +76,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.node_version }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: eu-central-1
+          role-to-assume: ${{ secrets.aws_role }}
       - name: Get repo data
         id: repo_data
         uses: htec-infra/gha-utils/actions/repo-data@v0.3.3
