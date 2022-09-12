@@ -98,7 +98,12 @@ jobs:
             ${{ hashFiles(inputs.lock_file) }}
       - name: Install node modules
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
-        run: npm install
+        run: |
+          if [[ ${{ inputs.lock_file }} == "yarn.*" ]]; then
+            /bin/bash -c "yarn install"
+          else
+            /bin/bash -c "npm install"
+          fi
       - name: Build the project
         run: |
           if [[ -f ${{ inputs.build_script }} ]]; then
