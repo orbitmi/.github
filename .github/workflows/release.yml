@@ -23,7 +23,7 @@ env:
 jobs:
   publish:
     # this job will only run if the PR has been merged and source branch is release branch
-    if: (github.event.pull_request.merged == true  && contains(github.head_ref, 'release/')) || (github.event_name == 'push' && contains(github.ref, 'refs/tags/*'))
+    if: (github.event.pull_request.merged == true  && contains(github.head_ref, 'release/')) || (github.event_name == 'push' && contains(github.ref, 'refs/tags/'))
     name: Publish
     runs-on: ubuntu-latest
     steps:
