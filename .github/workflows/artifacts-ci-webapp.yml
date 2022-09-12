@@ -21,6 +21,10 @@ on:
         type: string
         default: "./node_modules"
         required: false
+      lock_file:
+        type: string
+        default: "./package-lock.json"
+        required: false
       service_name:
         description: "Name or array of service name to be deployed"
         required: false
@@ -84,14 +88,14 @@ jobs:
       - name: Get repo data
         id: repo_data
         uses: htec-infra/gha-utils/actions/repo-data@v0.3.3
-      - name: Cache node modules
-        id: cache_node_modules
+      - name: Cache node modules(${{inputs.lock_file}})
+        id: cache_node_modules_npm
         uses: actions/cache@v3
         with:
           path: ${{ inputs.node_modules_path }}
-          key: ${{ hashFiles('./package-lock.json') }}
+          key: ${{ hashFiles(inputs.lock_file) }}
           restore-keys: |
-            ${{ hashFiles('./package-lock.json') }}
+            ${{ hashFiles(inputs.lock_file) }}
       - name: Install node modules
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
         run: npm install
