@@ -44,6 +44,11 @@ on:
         required: false
         type: string
         default: "app_deploy_v2"
+      auto_deploy_criteria:
+        description: "Specify app version"
+        required: false
+        type: string
+        default: "alpha"
       build_script:
         description: "Location for build script"
         required: false
@@ -136,7 +141,7 @@ jobs:
     name: Auto Deploy (Dev Only)
     needs: [build_push]
     runs-on: ubuntu-latest
-    if: contains(needs.build_push.outputs.app_version, 'alpha')
+    if: startsWith(needs.build_push.outputs.app_version, inputs.auto_deploy_criteria)
     steps:
       - name: Trigger
         uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
