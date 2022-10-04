@@ -31,23 +31,63 @@ on:
         required: false
         type: boolean
         default: true
+      platform:
+        description: "Change the platform on which runner will be working on"
+        required: false
+        type: string
+        default: self-hosted
     secrets:
       gh_token:
         required: true
+      aws_role:
+        description: "Role ARN"
+        required: false
 
 permissions:
-  id-token: none
+  #id-token need to be set to "write" in order to use OpenID Connect auth with AWS
+  id-token: write
 
 
 jobs:
   prepare_data:
     name: 'Prepare data for deployment'
-    runs-on: self-hosted
+    runs-on: ${{ inputs.platform }}
     steps:
       - name: Get service name
         id: get_service_name
         run: |
           echo ::set-output name=service_name::$(echo -n ${{ inputs.service_name }} | jq -cRs 'split(", ")')
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          token:  ${{ secrets.gh_token }}
+          ref: ${{ env.APP_REVISION }}
+      - name: Get repo data
+        id: repo_data
+        uses: htec-infra/gha-utils/actions/repo-data@v0.3.5
+      - name: Configure AWS credentials (GitHub runners)
+        uses: aws-actions/configure-aws-credentials@v1
+        if: inputs.platform != 'self-hosted'
+        with:
+          aws-region: eu-central-1
+          role-to-assume: ${{ secrets.aws_role }}
+      - name: Configure AWS credentials (self-hosted runners)
+        uses: aws-actions/configure-aws-credentials@v1
+        if: inputs.platform == 'self-hosted'
+        with:
+          aws-region: eu-central-1
+      - name: Check if tag exist
+        id: chek_container_tag
+        run: |
+          GET_REPO_NAME=$( echo ${{ env.CONTAINER_REPO }} | cut -d/ -f2- )
+          IMAGE_META="$( aws ecr describe-images --repository-name="${GET_REPO_NAME}" --image-ids=imageTag=${{ inputs.app_version }} 2> /dev/null )"
+          if [[ $? == 0 ]]; then
+              IMAGE_TAG="$( echo "${IMAGE_META}" | jq '.imageDetails[0].imageTags[0]' -r )"
+              echo "Tag ${IMAGE_TAG} found"
+          else
+              echo "${{ inputs.app_version }} tag not found"
+              exit 1
+          fi
     outputs:
       service_name: ${{ steps.get_service_name.outputs.service_name }}
 
