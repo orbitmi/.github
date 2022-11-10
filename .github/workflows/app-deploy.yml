@@ -88,18 +88,18 @@ jobs:
               local DOCKERFILE="$1"
 
               if [[ "${DOCKERFILE}" == "Dockerfile" ]]; then
-                echo ${{ env.CONTAINER_REPO }}:${{ inputs.app_version }}"
+                echo ${{ env.CONTAINER_REPO }}
               else
                 SERVICE_NAME="/${DOCKERFILE%.*}"
                 FORMAT_CONTAINER_REPO=$(echo ${{ env.CONTAINER_REPO }} | cut -f1-2 -d "/")
-                echo ${FORMAT_CONTAINER_REPO}${SERVICE_NAME}:${{ inputs.app_version }}"
+                echo ${FORMAT_CONTAINER_REPO}${SERVICE_NAME}
               fi
           }
           
           check_if_tag_exit(){
-            local IMG_TAG="$1"
+            local REPO_NAME="$1"
 
-            IMAGE_META="$( aws ecr describe-images --repository-name="${IMG_TAG}" --image-ids=imageTag=${{ inputs.app_version }} 2> /dev/null )"
+            IMAGE_META="$( aws ecr describe-images --repository-name="${REPO_NAME}" --image-ids=imageTag=${{ inputs.app_version }} 2> /dev/null )"
             if [[ $? == 0 ]]; then
                 IMAGE_TAG="$( echo "${IMAGE_META}" | jq '.imageDetails[0].imageTags[0]' -r )"
                 echo "Tag ${IMAGE_TAG} found"
@@ -116,8 +116,7 @@ jobs:
             fi
             for FILE in ${DOCKERFILES[@]} ; do
               GET_CONTAINER_REPO=$(format_image_tag "${FILE}")
-              GET_REPO_NAME=$( echo "${GET_CONTAINER_REPO}" | cut -d/ -f2- )
-              check_if_tag_exit "${GET_REPO_NAME}"
+              check_if_tag_exit "${GET_CONTAINER_REPO}"
             done
           }
           main
