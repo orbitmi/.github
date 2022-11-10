@@ -88,11 +88,11 @@ jobs:
               local DOCKERFILE="$1"
 
               if [[ "${DOCKERFILE}" == "Dockerfile" ]]; then
-                echo "${CONTAINER_REPO}:${APP_VERSION}"
+                echo "${CONTAINER_REPO}:${{ inputs.app_version }}"
               else
                 SERVICE_NAME="/${DOCKERFILE%.*}"
                 CONTAINER_REPO=$(echo "${CONTAINER_REPO}" | cut -f1-2 -d "/")
-                echo "${CONTAINER_REPO}${SERVICE_NAME}:${APP_VERSION}"
+                echo "${CONTAINER_REPO}${SERVICE_NAME}:${{ inputs.app_version }}"
               fi
           }
           
