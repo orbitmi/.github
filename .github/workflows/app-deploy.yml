@@ -91,7 +91,7 @@ jobs:
                 echo ${{ env.CONTAINER_REPO }}:${{ inputs.app_version }}"
               else
                 SERVICE_NAME="/${DOCKERFILE%.*}"
-                CONTAINER_REPO=$(echo ${{ env.CONTAINER_REPO }}" | cut -f1-2 -d "/")
+                CONTAINER_REPO=$(echo ${{ env.CONTAINER_REPO }} | cut -f1-2 -d "/")
                 echo ${{ env.CONTAINER_REPO }}${SERVICE_NAME}:${{ inputs.app_version }}"
               fi
           }
