@@ -120,7 +120,7 @@ jobs:
               check_if_tag_exit "${GET_REPO_NAME}"
             done
           }
-          main()
+          main
     outputs:
       service_name: ${{ steps.get_service_name.outputs.service_name }}
 
