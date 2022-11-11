@@ -18,6 +18,11 @@ on:
         required: false
         type: string
         default: "dev"
+      infra_dir:
+        description: "Directory where infra related config is located"
+        required: false
+        type: string
+        default: "./infra"
       service_name:
         description: "Name or array of service name to be deployed"
         required: true
@@ -79,15 +84,43 @@ jobs:
       - name: Check if tag exist
         id: chek_container_tag
         run: |
-          GET_REPO_NAME=$( echo ${{ env.CONTAINER_REPO }} | cut -d/ -f2- )
-          IMAGE_META="$( aws ecr describe-images --repository-name="${GET_REPO_NAME}" --image-ids=imageTag=${{ inputs.app_version }} 2> /dev/null )"
-          if [[ $? == 0 ]]; then
-              IMAGE_TAG="$( echo "${IMAGE_META}" | jq '.imageDetails[0].imageTags[0]' -r )"
-              echo "Tag ${IMAGE_TAG} found"
-          else
-              echo "${{ inputs.app_version }} tag not found"
-              exit 1
-          fi
+          format_image_tag(){
+              local DOCKERFILE="$1"
+
+              if [[ "${DOCKERFILE}" == "Dockerfile" ]]; then
+                echo ${{ env.CONTAINER_REPO }}
+              else
+                SERVICE_NAME="/${DOCKERFILE%.*}"
+                FORMAT_CONTAINER_REPO=$(echo ${{ env.CONTAINER_REPO }} | cut -f1-2 -d "/")
+                echo ${FORMAT_CONTAINER_REPO}${SERVICE_NAME}
+              fi
+          }
+          
+          check_if_tag_exit(){
+            local REPO_NAME="$1"
+
+            IMAGE_META="$( aws ecr describe-images --repository-name="${REPO_NAME}" --image-ids=imageTag=${{ inputs.app_version }} 2> /dev/null )"
+            if [[ $? == 0 ]]; then
+                IMAGE_TAG="$( echo "${IMAGE_META}" | jq '.imageDetails[0].imageTags[0]' -r )"
+                echo "Tag ${IMAGE_TAG} found"
+            else
+                echo "${{ inputs.app_version }} tag not found"
+                exit 1
+            fi
+          }
+          main(){
+            if [[ ${{ env.CONTAINER_REPO }} == *"{container_prefix}"* ]];then
+              DOCKERFILES=$(cd ${{ inputs.infra_dir }} || exit ; find * -name '*.Dockerfile')
+            else
+              DOCKERFILES=("Dockerfile")
+            fi
+            for FILE in ${DOCKERFILES[@]} ; do
+              GET_CONTAINER_REPO=$(format_image_tag "${FILE}")
+              GET_REPO_NAME=$( echo ${GET_CONTAINER_REPO} | cut -d/ -f2- )
+              check_if_tag_exit "${GET_REPO_NAME}"
+            done
+          }
+          main
     outputs:
       service_name: ${{ steps.get_service_name.outputs.service_name }}
 
