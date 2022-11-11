@@ -116,7 +116,8 @@ jobs:
             fi
             for FILE in ${DOCKERFILES[@]} ; do
               GET_CONTAINER_REPO=$(format_image_tag "${FILE}")
-              check_if_tag_exit "${GET_CONTAINER_REPO}"
+              GET_REPO_NAME=$( echo ${GET_CONTAINER_REPO} | cut -d/ -f2- )
+              check_if_tag_exit "${GET_REPO_NAME}"
             done
           }
           main
