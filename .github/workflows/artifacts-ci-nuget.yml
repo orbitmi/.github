@@ -8,12 +8,8 @@ on:
         required: false
         type: string
         default: ubuntu-latest
-      libary_path:
+      library_path:
         description: 'Path to .csproj file in repository'
-        required: true
-        type: string
-      libary_name:
-        description: 'Libary name that will be used in final build'
         required: true
         type: string
       dotnet_version:
@@ -51,18 +47,19 @@ jobs:
           dotnet-version: ${{ inputs.dotnet_version }}
       - name: Set Version
         run: |
-          PACKAGE_VERSION=$(cat ${{ inputs.libary_path }} | grep Version | tail -1|cut -d">" -f2 |cut -d"<" -f1)
+          PACKAGE_VERSION=$(cat ${{ inputs.library_path }} | grep Version | tail -1|cut -d">" -f2 |cut -d"<" -f1)
           echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
       - name: Install dependencies
-        run: dotnet restore ${{ inputs.libary_path }}
+        run: dotnet restore ${{ inputs.library_path }}
       - name: Build artifact
-        run: dotnet build ${{ inputs.libary_path }} --configuration Release
+        run: dotnet build ${{ inputs.library_path }} --configuration Release
       - name: Build and pack artifact
         run: |
           mkdir -p ${{ inputs.artifact_output_location }}
-          dotnet publish ${{ inputs.libary_path }} --configuration Release --output ${{ inputs.artifact_output_location }}
-          dotnet pack ${{ inputs.libary_path }} --configuration Release --no-build --output ${{ inputs.artifact_output_location }}
-      - name: Add source
+          dotnet publish ${{ inputs.library_path }} --configuration Release --output ${{ inputs.artifact_output_location }}
+          dotnet pack ${{ inputs.library_path }} --configuration Release --no-build --output ${{ inputs.artifact_output_location }}
+      - name: Upload artifact to the registry
         run: |
+          LIBRARY_NAME=$(echo ${{ library_path }} | cut -d '.' -f 1 | cut -d '/' -f 2)
           dotnet nuget add source "https://nuget.pkg.github.com/orbitmi/index.json" --username OrbitCI --password ${{ secrets.gh_token }} --store-password-in-clear-text --name github
-          dotnet nuget push "${{ inputs.artifact_output_location }}/${{ inputs.libary_name }}.$PACKAGE_VERSION.nupkg" --api-key ${{ secrets.gh_token }} --source "github"
+          dotnet nuget push "${{ inputs.artifact_output_location }}/${LIBRARY_NAME}.$PACKAGE_VERSION.nupkg" --api-key ${{ secrets.gh_token }} --source "github"
