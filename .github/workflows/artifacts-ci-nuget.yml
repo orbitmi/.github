@@ -10,7 +10,7 @@ on:
         default: ubuntu-latest
       libary_path:
         description: 'Path to .csproj file in repository'
-        requred: true
+        required: true
         type: string
       libary_name:
         description: 'Libary name that will be used in final build'
