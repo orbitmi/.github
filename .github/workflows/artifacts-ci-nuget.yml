@@ -36,7 +36,7 @@ env:
 
 jobs:
   publish_artifact:
-    name: "Publish nuget artifact"
+    name: Publish nuget artifact
     runs-on: ${{ inputs.platform }}
     steps:
       - uses: actions/checkout@v3
