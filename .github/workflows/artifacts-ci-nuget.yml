@@ -1,0 +1,66 @@
+name: 'Artifact CI nuget'
+
+on:
+  workflow_call:
+    inputs:
+      platform:
+        description: 'Change the platform on which runner will be working on'
+        required: false
+        type: string
+        default: ubuntu-latest
+      library_path:
+        description: 'Path to .csproj file in repository'
+        required: true
+        type: string
+      dotnet_version:
+        description: '.NET version'
+        required: false
+        type: string
+        default: '6.0.x'
+      artifact_output_location:
+        description: 'Path where artifact will be published'
+        required: false
+        type: string
+        default: '$GITHUB_WORKSPACE/artifacts'
+    secrets:
+      gh_token:
+        description: 'Github access token'
+        required: true
+
+env:
+  APP_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  publish_artifact:
+    name: Run Repository Dispatcher
+    runs-on: ${{ inputs.platform }}
+    if: (github.event_name == 'push') || (github.event_name == 'pull_request' && contains(github.head_ref, 'release/')) || (github.event_name == 'workflow_dispatch')
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          token:  ${{ secrets.gh_token }}
+          ref: ${{ env.APP_REVISION }}
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ inputs.dotnet_version }}
+      - name: Set Version
+        run: |
+          PACKAGE_VERSION=$(grep -oP '(?<=<Version>)[^<]+' ${{ inputs.library_path }})
+          echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: dotnet restore ${{ inputs.library_path }}
+      - name: Build artifact
+        run: dotnet build ${{ inputs.library_path }} --configuration Release
+      - name: Pack artifact
+        run: |
+          mkdir -p ${{ inputs.artifact_output_location }}
+          dotnet publish ${{ inputs.library_path }} --configuration Release --output ${{ inputs.artifact_output_location }}
+          dotnet pack ${{ inputs.library_path }} --configuration Release --no-build --output ${{ inputs.artifact_output_location }}
+      - name: Upload artifact to the registry
+        run: |
+          FULL_LIBRARY_NAME="${{ inputs.library_path }}"
+          EXTRACTED_LIBRARY_NAME="${FULL_LIBRARY_NAME%/*}"
+          dotnet nuget add source "https://nuget.pkg.github.com/orbitmi/index.json" --username OrbitCI --password ${{ secrets.gh_token }} --store-password-in-clear-text --name github
+          dotnet nuget push "${{ inputs.artifact_output_location }}/${EXTRACTED_LIBRARY_NAME}.$PACKAGE_VERSION.nupkg" --api-key ${{ secrets.gh_token }} --source "github"
