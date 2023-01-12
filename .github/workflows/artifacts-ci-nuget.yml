@@ -60,6 +60,6 @@ jobs:
           dotnet pack ${{ inputs.library_path }} --configuration Release --no-build --output ${{ inputs.artifact_output_location }}
       - name: Upload artifact to the registry
         run: |
-          LIBRARY_NAME=$(echo ${{ library_path }} | cut -d '.' -f 1 | cut -d '/' -f 2)
+          LIBRARY_NAME=$(echo ${{ inputs.library_path }} | cut -d '.' -f 1 | cut -d '/' -f 2)
           dotnet nuget add source "https://nuget.pkg.github.com/orbitmi/index.json" --username OrbitCI --password ${{ secrets.gh_token }} --store-password-in-clear-text --name github
           dotnet nuget push "${{ inputs.artifact_output_location }}/${LIBRARY_NAME}.$PACKAGE_VERSION.nupkg" --api-key ${{ secrets.gh_token }} --source "github"
