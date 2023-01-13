@@ -61,6 +61,7 @@ jobs:
       - name: Upload artifact to the registry
         run: |
           FULL_LIBRARY_NAME="${{ inputs.library_path }}"
-          EXTRACTED_LIBRARY_NAME="${FULL_LIBRARY_NAME%/*}"
+          EXTRACTED_LIBRARY_NAME="${FULL_LIBRARY_NAME#*/}"
+          EXTRACTED_LIBRARY_NAME="${FULL_LIBRARY_NAME%%/*}"
           dotnet nuget add source "https://nuget.pkg.github.com/orbitmi/index.json" --username OrbitCI --password ${{ secrets.gh_token }} --store-password-in-clear-text --name github
           dotnet nuget push "${{ inputs.artifact_output_location }}/${EXTRACTED_LIBRARY_NAME}.$PACKAGE_VERSION.nupkg" --api-key ${{ secrets.gh_token }} --source "github"
