@@ -26,14 +26,14 @@ jobs:
     steps:
       # Checkout the source code first
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           token: ${{ secrets.gh_token }}
 
       # Checkout the configuration repo in the subdir `infra-config`
       - name: Checkout infra config
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ${{ inputs.config_repo }}
           path: 'infra-config'
