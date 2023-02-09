@@ -71,7 +71,7 @@ jobs:
     runs-on: ${{ inputs.platform }}
     if: (github.event_name == 'push') || (github.event_name == 'pull_request' && contains(github.head_ref, 'release/')) || (github.event_name == 'workflow_dispatch')
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
           token:  ${{ secrets.gh_token }}
