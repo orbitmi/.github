@@ -71,13 +71,13 @@ jobs:
         id: repo_data
         uses: htec-infra/gha-utils/actions/repo-data@v0.3.5
       - name: Configure AWS credentials (GitHub runners)
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1.7.0
         if: inputs.platform != 'self-hosted'
         with:
           aws-region: eu-central-1
           role-to-assume: ${{ secrets.aws_role }}
       - name: Configure AWS credentials (self-hosted runners)
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1.7.0
         if: inputs.platform == 'self-hosted'
         with:
           aws-region: eu-central-1
