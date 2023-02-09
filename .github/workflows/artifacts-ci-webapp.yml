@@ -126,7 +126,7 @@ jobs:
       - name: Get service name
         id: get_service_name
         run: |
-          echo ::set-output name=service_name::${{ inputs.service_name || steps.repo_data.outputs.repo_name }}
+          echo service_name=${{ inputs.service_name || steps.repo_data.outputs.repo_name }}  >> $GITHUB_OUTPUT
       - name: Comment PR
         if: github.event_name == 'pull_request'
         uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
