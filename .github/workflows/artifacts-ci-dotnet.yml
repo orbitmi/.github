@@ -92,12 +92,12 @@ jobs:
           role-to-assume: ${{ secrets.aws_role }}
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
-        if: inputs.uses_private_repo != 'true'
+        if: inputs.uses_private_repo == 'true'
         with:
           dotnet-version: ${{ inputs.dotnet_version }}
       - name: Download libs from NuGet registry
         id: download_libs
-        if: inputs.uses_private_repo != 'true'
+        if: inputs.uses_private_repo == 'true'
         run: |
           SOLUTION_FILE="$(find "${{ inputs.app_build_dir }}/" -name "*.sln" | head -1)"
           dotnet nuget add source "https://nuget.pkg.github.com/orbitmi/index.json" --username OrbitCI --password ${{ secrets.gh_token }} --store-password-in-clear-text --name github
