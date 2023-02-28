@@ -50,8 +50,8 @@ on:
       uses_private_repo:
         description: "If the specific project is using libs from the private NuGet registry this must be set to true"
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'false'
     secrets:
       gh_token:
         description: 'Github access token'
@@ -92,12 +92,12 @@ jobs:
           role-to-assume: ${{ secrets.aws_role }}
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
-        if: inputs.uses_private_repo == 'true'
+        if: inputs.uses_private_repo != 'false'
         with:
           dotnet-version: ${{ inputs.dotnet_version }}
       - name: Download libs from NuGet registry
         id: download_libs
-        if: inputs.uses_private_repo == 'true'
+        if: inputs.uses_private_repo != 'false'
         run: |
           SOLUTION_FILE="$(find "${{ inputs.app_build_dir }}/" -name "*.sln" | head -1)"
           dotnet nuget add source "https://nuget.pkg.github.com/orbitmi/index.json" --username OrbitCI --password ${{ secrets.gh_token }} --store-password-in-clear-text --name github
