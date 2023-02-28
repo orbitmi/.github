@@ -21,6 +21,11 @@ on:
       org_name:
         required: false
         type: string
+      uses_private_repo:
+        description: "If the specific project is using libs from the private NuGet registry this must be set to true"
+        required: false
+        type: string
+        default: 'false'
     secrets:
       sonar_token:
         required: true
@@ -54,6 +59,14 @@ jobs:
         run: dotnet tool install --global dotnet-sonarscanner
       - name: Begin Sonar scan
         run: dotnet sonarscanner begin /k:"${{ inputs.org_name || steps.repo_data.outputs.org_name }}_${{ inputs.repo_name || steps.repo_data.outputs.repo_name }}" /d:sonar.login=${{ secrets.sonar_token }} /d:sonar.host.url=https://sonarcloud.io /o:${{ inputs.org_name || steps.repo_data.outputs.org_name }}
+      - name: Download libs from NuGet registry and build solution
+        id: download_libs
+        if: inputs.uses_private_repo != 'false'
+        run: |
+          SOLUTION_FILE="$(find "${{ inputs.build_dir }}" -name "*.sln" | head -1)"
+          dotnet nuget add source "https://nuget.pkg.github.com/orbitmi/index.json" --username OrbitCI --password ${{ secrets.gh_token }} --store-password-in-clear-text --name github
+          dotnet build "${{ inputs.build_dir }}"
+          dotnet nuget remove source github
       - name: Build and run unit tests
         run: dotnet build "${{ inputs.build_dir }}"
       - name: End Sonar scan
