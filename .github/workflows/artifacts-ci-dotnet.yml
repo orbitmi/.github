@@ -50,7 +50,7 @@ on:
       uses_private_repo:
         description: "If the specific project is using libs from the private NuGet registry this must be set to true"
         required: false
-        type: bool
+        type: boolean
         default: false
     secrets:
       gh_token:
