@@ -33,7 +33,7 @@ on:
         required: true
 
 permissions:
-  id-token: write
+  packages: read
   contents: read
 
 jobs:
