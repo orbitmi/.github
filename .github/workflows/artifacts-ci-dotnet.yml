@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         default: "dev"
+      dotnet_version:
+        description: '.NET version'
+        required: false
+        type: string
+        default: '6.0.x'
       infra_repo:
         description: "Remote infrastructure repo"
         required: false
@@ -33,15 +38,20 @@ on:
         type: string
         default: "app_deploy_v2"
       app_build_dir:
-        description: "Directory where solution file is stored"
+        description: "Directory where main solution file is stored"
         required: false
         type: string
-        default: "src/"
+        default: "src"
       auto_deploy_criteria:
         description: "Specify app version"
         required: false
         type: string
         default: "alpha"
+      uses_private_repo:
+        description: "If the specific project is using libs from the private NuGet registry this must be set to true"
+        required: false
+        type: string
+        default: 'false'
     secrets:
       gh_token:
         description: 'Github access token'
@@ -80,6 +90,19 @@ jobs:
         with:
           aws-region: eu-central-1
           role-to-assume: ${{ secrets.aws_role }}
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        if: inputs.uses_private_repo != 'false'
+        with:
+          dotnet-version: ${{ inputs.dotnet_version }}
+      - name: Download libs from NuGet registry
+        id: download_libs
+        if: inputs.uses_private_repo != 'false'
+        run: |
+          SOLUTION_FILE="$(find "${{ inputs.app_build_dir }}/" -name "*.sln" | head -1)"
+          dotnet nuget add source "https://nuget.pkg.github.com/orbitmi/index.json" --username OrbitCI --password ${{ secrets.gh_token }} --store-password-in-clear-text --name github
+          dotnet restore "${SOLUTION_FILE}" --packages "${{ inputs.app_build_dir }}/libs"
+          dotnet nuget remove source github
       - name: Build and push container image
         id: container_ops
         uses: htec-infra/gha-utils/actions/container-ops@v0.3.7
