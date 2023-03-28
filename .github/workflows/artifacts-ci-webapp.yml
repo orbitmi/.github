@@ -86,7 +86,7 @@ jobs:
         with:
           node-version: ${{ inputs.node_version }}
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1.7.0
+        uses: aws-actions/configure-aws-credentials@v2.0.0
         with:
           aws-region: eu-central-1
           role-to-assume: ${{ secrets.aws_role }}
@@ -129,7 +129,7 @@ jobs:
           echo service_name=${{ inputs.service_name || steps.repo_data.outputs.repo_name }}  >> $GITHUB_OUTPUT
       - name: Comment PR
         if: github.event_name == 'pull_request'
-        uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
+        uses: htec-infra/gha-utils/actions/comment-pr@v0.3.7
         continue-on-error: true
         with:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -144,7 +144,7 @@ jobs:
     if: startsWith(needs.build_push.outputs.app_version, inputs.auto_deploy_criteria)
     steps:
       - name: Trigger
-        uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
+        uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.7
         with:
           gh_token: ${{ secrets.gh_token }}
           repository: ${{ inputs.infra_repo }}

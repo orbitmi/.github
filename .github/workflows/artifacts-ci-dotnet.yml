@@ -85,7 +85,7 @@ jobs:
         id: repo_data
         uses: htec-infra/gha-utils/actions/repo-data@v0.3.7
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1.7.0
+        uses: aws-actions/configure-aws-credentials@v2.0.0
         if: inputs.platform != 'self-hosted'
         with:
           aws-region: eu-central-1
@@ -115,7 +115,7 @@ jobs:
       - name: Comment PR
         id: comment_pr
         if: github.event_name == 'pull_request'
-        uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
+        uses: htec-infra/gha-utils/actions/comment-pr@v0.3.7
         with:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
     outputs:
