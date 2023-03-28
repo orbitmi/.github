@@ -129,7 +129,7 @@ jobs:
           echo service_name=${{ inputs.service_name || steps.repo_data.outputs.repo_name }}  >> $GITHUB_OUTPUT
       - name: Comment PR
         if: github.event_name == 'pull_request'
-        uses: htec-infra/gha-utils/actions/comment-pr@v0.3.7
+        uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
         continue-on-error: true
         with:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
