@@ -41,7 +41,7 @@ on:
         description: "Directory where main solution file is stored"
         required: false
         type: string
-        default: "./src"
+        default: "src"
       auto_deploy_criteria:
         description: "Specify app version"
         required: false
