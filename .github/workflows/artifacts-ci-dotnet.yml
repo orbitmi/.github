@@ -91,7 +91,7 @@ jobs:
           aws-region: eu-central-1
           role-to-assume: ${{ secrets.aws_role }}
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v1
         if: inputs.uses_private_repo != 'false'
         with:
           dotnet-version: ${{ inputs.dotnet_version }}
