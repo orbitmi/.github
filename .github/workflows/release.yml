@@ -33,6 +33,6 @@ jobs:
           token:  ${{ secrets.gh_token }}
       - name: Get repo data
         id: repo_data
-        uses: htec-infra/gha-utils/actions/repo-data@v0.3.7
+        uses: orbitmi/gha-utils/actions/repo-data@v0.3.7
       - name: Create GitHub Release
-        uses: htec-infra/gha-utils/actions/gh-release@v0.3.7
+        uses: orbitmi/gha-utils/actions/gh-release@v0.3.7

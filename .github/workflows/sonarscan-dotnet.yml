@@ -47,7 +47,7 @@ jobs:
           token:  ${{ secrets.gh_token }}
       - name: Get repo data
         id: repo_data
-        uses: htec-infra/gha-utils/actions/repo-data@v0.3.7
+        uses: orbitmi/gha-utils/actions/repo-data@v0.3.7
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
