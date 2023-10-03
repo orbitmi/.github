@@ -41,9 +41,9 @@ jobs:
     steps:
       - name: Get repo data
         id: repo_data
-        uses: htec-infra/gha-utils/actions/repo-data@v0.3.1
+        uses: orbitmi/gha-utils/actions/repo-data@v0.3.1
       - name: Run worker
-        uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.1
+        uses: orbitmi/gha-utils/actions/repo-dispatch@v0.3.1
         with:
           gh_token: ${{ secrets.gh_token }}
           repository: ${{ inputs.infra_repo }}
