@@ -92,7 +92,7 @@ jobs:
           role-to-assume: ${{ secrets.aws_role }}
       - name: Get repo data
         id: repo_data
-        uses: htec-infra/gha-utils/actions/repo-data@v0.3.7
+        uses: orbitmi/gha-utils/actions/repo-data@v0.3.7
       - name: Cache node modules(${{inputs.lock_file}})
         id: cache_node_modules_npm
         uses: actions/cache@v3
@@ -120,7 +120,7 @@ jobs:
           fi
       - name: Build and push container image
         id: container_ops
-        uses: htec-infra/gha-utils/actions/container-ops@v0.3.7
+        uses: orbitmi/gha-utils/actions/container-ops@v0.3.7
         with:
           push_image: "${{ inputs.push_image }}"
       - name: Get service name
@@ -129,7 +129,7 @@ jobs:
           echo service_name=${{ inputs.service_name || steps.repo_data.outputs.repo_name }}  >> $GITHUB_OUTPUT
       - name: Comment PR
         if: github.event_name == 'pull_request'
-        uses: htec-infra/gha-utils/actions/comment-pr@v0.3.1
+        uses: orbitmi/gha-utils/actions/comment-pr@v0.3.1
         continue-on-error: true
         with:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -144,7 +144,7 @@ jobs:
     if: startsWith(needs.build_push.outputs.app_version, inputs.auto_deploy_criteria)
     steps:
       - name: Trigger
-        uses: htec-infra/gha-utils/actions/repo-dispatch@v0.3.7
+        uses: orbitmi/gha-utils/actions/repo-dispatch@v0.3.7
         with:
           gh_token: ${{ secrets.gh_token }}
           repository: ${{ inputs.infra_repo }}
