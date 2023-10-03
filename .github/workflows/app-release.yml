@@ -40,7 +40,7 @@ jobs:
           token: ${{ secrets.gh_token }}
       - name: Prepare App for Release
         id: artifact
-        uses: orbitmi/gha-utils/actions/init-release@v0.3.7
+        uses: orbitmi/gha-utils/actions/init-release@v0.3.8
         with:
           release_type: ${{ inputs.release_type }}
           config_dir: 'infra-config'

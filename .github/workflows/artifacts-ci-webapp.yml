@@ -92,7 +92,7 @@ jobs:
           role-to-assume: ${{ secrets.aws_role }}
       - name: Get repo data
         id: repo_data
-        uses: orbitmi/gha-utils/actions/repo-data@v0.3.7
+        uses: orbitmi/gha-utils/actions/repo-data@v0.3.8
       - name: Cache node modules(${{inputs.lock_file}})
         id: cache_node_modules_npm
         uses: actions/cache@v3
@@ -120,7 +120,7 @@ jobs:
           fi
       - name: Build and push container image
         id: container_ops
-        uses: orbitmi/gha-utils/actions/container-ops@v0.3.7
+        uses: orbitmi/gha-utils/actions/container-ops@v0.3.8
         with:
           push_image: "${{ inputs.push_image }}"
       - name: Get service name
@@ -144,7 +144,7 @@ jobs:
     if: startsWith(needs.build_push.outputs.app_version, inputs.auto_deploy_criteria)
     steps:
       - name: Trigger
-        uses: orbitmi/gha-utils/actions/repo-dispatch@v0.3.7
+        uses: orbitmi/gha-utils/actions/repo-dispatch@v0.3.8
         with:
           gh_token: ${{ secrets.gh_token }}
           repository: ${{ inputs.infra_repo }}

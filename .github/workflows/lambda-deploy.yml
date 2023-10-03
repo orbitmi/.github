@@ -58,7 +58,7 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - name: Trigger deploy
-        uses: orbitmi/gha-utils/actions/repo-dispatch@v0.3.7
+        uses: orbitmi/gha-utils/actions/repo-dispatch@v0.3.8
         with:
           gh_token: ${{ secrets.gh_token }}
           repository: ${{ inputs.infra_repo }}
