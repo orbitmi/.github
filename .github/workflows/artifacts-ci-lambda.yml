@@ -29,7 +29,7 @@ on:
       dotnet_version:
         description: ".NET version"
         type: string
-        default: '3.1.x'
+        default: '6.0.x'
         required: false
       dry_run:
         description: "Dry run"
